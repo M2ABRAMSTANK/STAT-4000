@@ -1,0 +1,25 @@
+name <- "Row"
+cat("My name is:", name, "\n")
+class(name)
+
+bulb_lifetimes <- c(950,100,1020,980,2005,1031,4213,3456,323,21345,6432,1320,4322)
+manufacturer <- c("A","A","A","A","A","A","B","B","B","B","B","B","B")
+bulb_id <- 1:length(bulb_lifetimes)
+
+df <-data.frame(
+  bulb_id = bulb_id,
+  lifetime = bulb_lifetimes,
+  manufacturer = manufacturer
+)
+
+
+head(df)
+str(df)
+summary(df)
+
+write.csv(df, file="bulb_data.csv", row.names=FALSE)
+df2 <- read.csv("bulb_data_v2.csv", header=TRUE)
+
+head(df2)
+str(df2)
+summary(df2)

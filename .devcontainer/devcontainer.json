@@ -4,6 +4,7 @@
 
   "features": {
     "ghcr.io/rocker-org/devcontainer-features/r-apt:latest": {},
+    "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
   },
 
