@@ -1,0 +1,321 @@
+---
+title: 'STAT 4/5000 Homework #1'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+# nothing from this chunk appears in rendered PDF
+# show code and output when you knit to PDF
+knitr::opts_chunk$set(echo = TRUE) 
+library(ggplot2)
+```
+
+**See Canvas for HW #1 assignment due date**. Complete all of the following problems. The theoretical problems should be answered in a Markdown cell directly underneath the question. If you don't know LaTex/Markdown, you may submit handwritten solutions to the theoretical problems, but the handwritten solutions must be embedded in the R Markdown (.Rmd) file as an image. Please be clear on which problem each written solution is answering. If your handwriting is not legible, you might receive no points.
+
+Computational problems should be completed in this Rmd notebook. Computational questions may require code, plots, analysis, interpretation, etc. Working in small groups is allowed, but you must write up all solutions in your own words.
+
+Submit a **single PDF to Canvas** by knitting this file to a PDF. Click the drop down arrow next to "Knit" at the top of the RStudio window and select "Knit to PDF." You may be prompted to install TinyTex or other packages required to knit so make sure to install them! If you run into issues, please come to office hours!
+
+```{r example image, include=FALSE}
+### Example of how to embed an image of handwritten work:
+
+# 1. Copy-paste the next line (without #) outside of this code chunk cell.
+# ![Caption for the picture.](image_name.png)
+# 2. Change the name of the .png to the image you want to insert. Note: The image needs to be in the same folder as this Rmd file.
+# 3. Knit the document to see the image appear.
+```
+
+---
+
+## Problem 1 (25 points)
+
+Let $x_1,...,x_n$ be a variable measured for units in a sample. Let $\mu$ denote the mean of the *population* from which the sample came. The mean of the *sample*, as always, is $\displaystyle \bar{x} = \frac{1}{n}\sum^n_{i=1}x_i$. The sample variance is $\displaystyle s_x^2 =\frac{1}{n-1}\sum^n_{i=1}(x_i - \bar{x})^2$.
+
+
+**PART A:** For what value of $c$ is the quantity $\sum^n_{i=1}(x_i - c)^2$ minimized? Prove that the value you find is indeed a minimum. Treat $x_i$, $i= 1,...,n$ as fixed constants. (Remember calculus?!)
+
+```{=latex}
+\textbf{Proof:}
+
+Let $f(c) = \sum^n_{i=1}(x_i - c)^2$.
+
+First, we expand the squared term:
+$$f(c) = \sum^n_{i=1}(x_i^2 - 2x_ic + c^2) = \sum^n_{i=1}x_i^2 - 2c\sum^n_{i=1}x_i + nc^2$$
+
+To find the critical point, we take the derivative with respect to $c$ and set it equal to zero:
+$$\frac{df}{dc} = -2\sum^n_{i=1}x_i + 2nc = 0$$
+
+Solving for $c$:
+$$2nc = 2\sum^n_{i=1}x_i$$
+$$c = \frac{1}{n}\sum^n_{i=1}x_i = \bar{x}$$
+
+To verify this is a minimum, we check the second derivative:
+$$\frac{d^2f}{dc^2} = 2n > 0$$
+
+Since the second derivative is positive for all $n > 0$, we have confirmed that $c = \bar{x}$ is indeed a minimum.
+```
+
+**PART B:** Using the result from PART A, which of the two quantities $\sum^n_{i=1}(x_i - \bar{x})^2$ and $\sum^n_{i=1}(x_i - \mu)^2$ will be smaller than the other (assuming that $\bar{x} \ne \mu$)? Provide justification for your answer.
+
+```{=latex}
+\textbf{Answer:}
+
+The quantity $\sum^n_{i=1}(x_i - \bar{x})^2$ will be smaller than $\sum^n_{i=1}(x_i - \mu)^2$.
+
+\textbf{Justification:}
+
+From Part A, we proved that $c = \bar{x}$ minimizes the sum $\sum^n_{i=1}(x_i - c)^2$ over all possible values of $c$.
+
+Since $\bar{x}$ minimizes this sum, and $\mu \ne \bar{x}$ (given), it follows that:
+$$\sum^n_{i=1}(x_i - \bar{x})^2 < \sum^n_{i=1}(x_i - \mu)^2$$
+
+Intuitively, this makes sense because the sample mean $\bar{x}$ is computed directly from the sample data $x_1, \ldots, x_n$, and is therefore the value that is "closest" to all the sample values in terms of minimizing squared deviations. The population mean $\mu$, while representing the center of the entire population, is not necessarily optimal for minimizing the sum of squared deviations within this particular sample.
+```
+
+**PART C:** Let $y_i = x_i - \bar{x}$, for $i = 1,...,n$. How does the value of $s_y^2$ compare to $s_x^2$? 
+
+Show your result in two ways.
+- Create an $x$ and $y$ dataset and compute the sample variances for each one. Describe what you find.
+- Show this mathematically. 
+
+Your two methods should demonstrate the same result.
+
+```{r}
+x <- c(1,2,4,5,7,4,13,6,89,52,32,41,9,5,31,4,6,547,9,531,4,7,9,76465,14,5,6,87,897,64,3,4,6,78,9,35,32)
+
+x_bar <- mean(x)
+
+y <- x-x_bar
+
+s_x_squared <- var(x)
+s_y_squared <- var(y)
+
+s_x_squared
+s_y_squared
+
+s_x_squared-s_y_squared
+
+```
+```{=latex}
+\textbf{Mathematical Proof:}
+
+Given: $y_i = x_i - \bar{x}$ for $i = 1, \ldots, n$
+
+First, we find the mean of $y$:
+$$\bar{y} = \frac{1}{n}\sum_{i=1}^n y_i = \frac{1}{n}\sum_{i=1}^n (x_i - \bar{x}) = \frac{1}{n}\sum_{i=1}^n x_i - \frac{1}{n}\sum_{i=1}^n \bar{x} = \bar{x} - \bar{x} = 0$$
+
+Now we calculate $s_y^2$:
+$$s_y^2 = \frac{1}{n-1}\sum_{i=1}^n (y_i - \bar{y})^2 = \frac{1}{n-1}\sum_{i=1}^n (y_i - 0)^2 = \frac{1}{n-1}\sum_{i=1}^n y_i^2$$
+
+Substituting $y_i = x_i - \bar{x}$:
+$$s_y^2 = \frac{1}{n-1}\sum_{i=1}^n (x_i - \bar{x})^2 = s_x^2$$
+
+Therefore, $s_y^2 = s_x^2$.
+```
+
+
+**PART D:** Let $\displaystyle z_i =  (x_i - \bar{x})/s_x$ for $i = 1,...,n$. What are $s_z^2$ and $\bar{z}$?
+
+Show your result in two ways.
+- Create an $x$ and a $z$ dataset and compute the sample variance and sample mean for z. Describe what you find.
+- Show this mathematically. 
+
+Your two methods should demonstrate the same result.
+
+```{r}
+s_x <- sd(x)
+
+z <- (x-x_bar) / s_x
+
+z_bar <- mean(z)
+
+s_z_squared <- var(z)
+
+z_bar
+s_z_squared
+```
+```{=latex}
+\textbf{Mathematical Proof:}
+
+Given: $z_i = \frac{x_i - \bar{x}}{s_x}$ for $i = 1, \ldots, n$
+
+\textbf{Part 1: Finding $\bar{z}$}
+
+$$\bar{z} = \frac{1}{n}\sum_{i=1}^n z_i = \frac{1}{n}\sum_{i=1}^n \frac{x_i - \bar{x}}{s_x} = \frac{1}{s_x} \cdot \frac{1}{n}\sum_{i=1}^n (x_i - \bar{x})$$
+
+$$= \frac{1}{s_x} \left(\frac{1}{n}\sum_{i=1}^n x_i - \frac{1}{n}\sum_{i=1}^n \bar{x}\right) = \frac{1}{s_x}(\bar{x} - \bar{x}) = 0$$
+
+Therefore, $\bar{z} = 0$.
+
+\textbf{Part 2: Finding $s_z^2$}
+
+$$s_z^2 = \frac{1}{n-1}\sum_{i=1}^n (z_i - \bar{z})^2 = \frac{1}{n-1}\sum_{i=1}^n (z_i - 0)^2 = \frac{1}{n-1}\sum_{i=1}^n z_i^2$$
+
+Substituting $z_i = \frac{x_i - \bar{x}}{s_x}$:
+
+$$s_z^2 = \frac{1}{n-1}\sum_{i=1}^n \left(\frac{x_i - \bar{x}}{s_x}\right)^2 = \frac{1}{n-1}\sum_{i=1}^n \frac{(x_i - \bar{x})^2}{s_x^2}$$
+
+$$= \frac{1}{s_x^2} \cdot \frac{1}{n-1}\sum_{i=1}^n (x_i - \bar{x})^2 = \frac{1}{s_x^2} \cdot s_x^2 = 1$$
+
+Therefore, $s_z^2 = 1$.
+```
+
+
+---
+
+## Problem 2: Numerical Summaries (25 points)
+
+
+The dataset below contains information on 522 homes for sale. The variables are:
+
+1. `ID`: house ID number
+2. `Price`: the sale price of the house
+3. `Sqft`: the size of the house in square feet
+4. `Bedroom`: the number of bedrooms in the house
+5. `Bathroom`: the number of bathrooms in the house
+6. `Airconditioning`: whether the house has air conditioning or not (`0` is no, `1` is yes)
+7. `Garage`: the number of garages associated with the house
+8. `Pool`: whether the house has a pool (`0` is no, `1` is yes)
+9. other variables that we won't use!
+
+First, we load in the data:
+
+```{r}
+housingdf <- read.csv("housing.txt")
+
+summary(housingdf)
+```
+
+**PART A:** Change the bedroom, bathroom, air conditioning, garage, and pool variables to factors. Remove the `YearBuild`, `Quality`, `Lot`, and `AdjHighway` variables. Store this new data frame in `house2`. Then print a summary of `house2`.
+
+We will use `house2` for the rest of this problem.
+
+```{r}
+housingdf$Bedroom <- as.factor(housingdf$Bedroom)
+housingdf$Bathroom <- as.factor(housingdf$Bathroom)
+housingdf$Airconditioning <- as.factor(housingdf$Airconditioning)
+housingdf$Garage <- as.factor(housingdf$Garage)
+housingdf$Pool <- as.factor(housingdf$Pool)
+
+house2 <- subset(housingdf, select = -c(YearBuild, Quality, Lot, AdjHighway))
+summary(house2)
+
+```
+
+**PART B:** Write code that extracts all of the rows/houses with a pool. Store your answer as a data frame in `House_Pool`. Print the header of this new dataframe.
+
+```{r}
+House_Pool <- subset(house2, Pool==1)
+head(House_Pool)
+```
+
+**PART C:** Write code that extracts all of the rows/houses with square footage less than the median. Store your answer as a data frame in `House_Small`. Print the header of this new dataframe.
+
+```{r}
+median_sqft <- median(house2$Sqft)
+median_sqft
+House_Small <- subset(house2, Sqft<median_sqft)
+head(House_Small)
+```
+
+**PART D:** What is the mean house price (across all variables, in `house2`)? Store your answer in `average_price`
+
+```{r}
+average_price <- mean(house2$Price)
+average_price
+```
+
+**PART E:** What is the average house price for houses with a pool? Store your answer in `average_price_pool`.
+
+```{r}
+average_price_pool <- mean(House_Pool$Price)
+average_price_pool
+```
+
+**PART F:** Compare the average house price for houses with a pool to the average house price for houses without a pool. Which is larger? Is this what you would expect? Can you make any sort of causal claim about pools and their effect on house price?
+
+```{r}
+average_price_pooless <- mean(subset(house2, Pool==0)$Price)
+average_price_pool - average_price_pooless
+```
+The average cost difference between the 2 is $79724.36, which I would say makes sense, as pools are generally rather expensive. A casual claim would be that pools make homes more expensive (crazy right)
+
+---
+
+## Problem 3: Graphical Summaries (25 points)
+
+
+The dataset for this question contains information on 522 homes for sale (the same dataset as in B.1). The variables are:
+
+1. `ID`: house ID number
+2. `Price`: the sale price of the house
+3. `Sqft`: the size of the house in square feet
+4. `Bedroom`: the number of bedrooms in the house
+5. `Bathroom`: the number of bathrooms in the house
+6. `Airconditioning`: whether the house has air conditioning or not (`0` is no, `1` is yes)
+7. `Garage`: the number of garages associated with the house
+8. `Pool`: whether the house has a pool (`0` is no, `1` is yes)
+9. other variables that we won't use!
+
+Use the `house2` version of this dataset that you created in B.1.
+
+**PART A:** Create a scatterplot (preferably using `ggplot`, though you can earn full credit with a basic plot) of `Price` (vertical axis) against `Sqft` (horizontal axis). Use the plot to describe the relationship between these two variables.
+
+```{r}
+ggplot(data = house2, aes(x=Sqft, y=Price)) + geom_point()
+
+ggsave("3.A.png", width = 4, height = 5)
+
+```
+They initially seem to be strongly positively correlated, however it quickly devolves past about 2000 sqft to a weaker positive correleation
+
+
+
+**PART B:** Create histograms and characterize the distributions of the variables `Price` and `Sqft`. Are the distributions (i) symmetric/skewed, or (ii) unimodal/multimodal? (iii) Do you see any outliers?
+
+```{r}
+ggplot(data = house2, aes(x=Price)) + geom_histogram()
+ggsave("3.B.Price.png", width = 5, height = 3)
+
+ggplot(data = house2, aes(x=Sqft)) + geom_histogram()
+ggsave("3.B.Sqft.png", width = 5, height = 3)
+```
+(i) Both the distributions are skewed
+(ii) Both the distributions are unimodal
+(iii) Yes, there are outliers on both plots
+
+
+
+**PART C:** Create a boxplot of `Price` conditioned on `Bedroom`. Are there any outliers? Does there appear to be a large difference in total price between homes with two bedrooms and homes with three bedrooms?
+
+```{r}
+ggplot(data=house2, aes(x=Bedroom, y=Price)) + geom_boxplot()
+ggsave("3.C.Boxplot.png", width = 3, height = 5)
+
+```
+Yes, there are several outliers. Most notably 2, 3, & 4 bedroom houses have considerably more outliers. There does appear to be a large difference, both on the max price (~$15000) and on the Q3 price (~$10000)
+
+---
+
+## Problem 4 (OPTIONAL for STAT 4000) (10 points)
+
+Let's create a variable, `v`, that has a bimodal distribution. To do this, we'll make use of the following functions:
+
+-   `replicate()`. This function allows you to repeat a specified expression a given number of times. It's a short way to write loops!
+-   `ifelse()`. This function will provide different tasks based on an output. For example, `ifelse(a < 5, 1, 0)` will output `1` if `a < 5` and `0` otherwise.
+-   `runif(n, 0, 1)`. This function generates `n` random numbers between `0` and `1`.
+-   `rnorm(n,a,b)`. This function generates `n` random numbers according to a bell curve, centered over `a`, with "spread" `b.`
+
+Ok, here's how we'll create `v`:
+
+1.  Generate a single random number between `0` and `1`.
+2.  If the number from the previous step is greater than `0.5`, generate a random number from the bell curve centered at `0` with spread `1`. On the other hand, if the number from the previous step is less than `0.5`, generate a random number from the bell curve centered at `5` with spread `1`.
+3.  Repeat this process `n = 1000` times.
+
+Then, create a histogram of `v`, and set `bins = 25`. What do you notice about the distribution?
+
+```{r}
+```
+
