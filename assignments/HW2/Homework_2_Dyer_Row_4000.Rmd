@@ -1,0 +1,319 @@
+---
+title: 'STAT 4/5000 Homework #2'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+# nothing from this chunk appears in rendered PDF
+# show code and output when you knit to PDF
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**See Canvas for HW #2 assignment due date.** Complete all of the following problems. The theoretical problems should be answered in a Markdown cell directly underneath the question. If you don't know LaTex/Markdown, you may submit handwritten solutions to the theoretical problems, but please see the class scanning policy. The handwritten solutions must be embedded in the R Markdown (.Rmd) file as an image in the R Markdown cell. If your handwriting is not legible, you might receive no points.
+
+Computational problems should be completed in this Rmd notebook. Computational questions may require code, plots, analysis, interpretation, etc. Working in small groups is allowed, but you must write up all solutions in your own words.
+
+------------------------------------------------------------------------
+
+## Problem 1 (20 points) Some probability calculations
+
+**PART A:** The CU Boulder triathlon team has 12 women and 9 men. The team is going to a race and can only enter 5 participants. What is the probability of randomly selecting a race squad of 5 participants with exactly 3 women?
+
+```{r}
+people <- 12+9
+total_possibilities <- choose(people, 5)
+favorable <- choose(12,3)*choose(9,2)
+prob_A <- favorable/total_possibilities
+print(prob_A)
+```
+The probability of randomly selecting a race squad from the sample with exactly 3 women is 0.3892083
+
+**PART B:** There are 48 students currently enrolled in STAT 4000/5000. If every student shows up to class plus Dr. G and the 2 TA's, what is the probability that at least two people in the room have the same birthday? Assume that all possible birthdays are equally likely, and ignore leap year.
+
+Write a loop in `R` to calculate the probability. Then, run a simulation that estimates this probability calculation. That is, simulate the birthdays (you can use the numbers 1 through 365) of 51 people many many times (e.g., `m = 100,000`), and find the relative frequency of cases in which at least two people share a birthday (HINT: The `anyDuplicated()`, `sample()` and `replicate()` functions may be useful here).
+
+```{r}
+n <- 51
+prob_all_different <- 1
+for (i in 1:(n - 1)) {
+  prob_all_different <- prob_all_different * (365 - i) / 365
+}
+prob_at_least_two <- 1 - prob_all_different
+print(prob_at_least_two)
+
+m <- 1000000
+results <- replicate(m, {
+  birthdays <- sample(1:365, size=51, replace=TRUE)
+  anyDuplicated(birthdays) > 0
+})
+
+prob_estimate <- mean(results)
+print(prob_estimate)
+
+print(prob_at_least_two-prob_estimate)
+```
+The calculated probability is 0.974432, with an estimated probability of 0.974484, giving difference of -5.200667e-05, which is very small.
+
+
+**PART C:** Three fair dice are thrown. What is the probability that a sum of 12 appears on the faces? Check your work by running a simulation that estimates your probability calculation.
+
+```{r}
+all_rolls <- expand.grid(d1 = 1:6, d2 = 1:6, d3 = 1:6)
+favorable <- sum(all_rolls$d1 + all_rolls$d2 + all_rolls$d3 == 12)
+print(favorable)
+
+m <- 1000000
+totalsuccess <- replicate(m, {
+  dice <- sample(1:6, size=3, replace=TRUE)
+  sum(dice) == 12
+})
+prob_12 <- mean(totalsuccess)
+print(prob_12)
+```
+The number of ways to get to 12, with 3 fair dice is 25 (from the R code), this comes from 216 possibilities, giving a proabability of 0.115740740740741. The simulation calculated, 0.115958, giving a very small difference.
+
+
+------------------------------------------------------------------------
+
+## Problem 2 (15 points) Probability and Causality
+
+**PART A:** What does it mean for one event C to cause another event E—for example, smoking (C) to cause cancer (E)? There is a long history in philosophy, statistics, and the sciences of trying to clearly analyze the concept of a cause. One tradition says that causes raise the probability of their effects; we may write this symbolically as $$P(E|C)>P(E) \qquad \qquad (1)$$
+
+Does equation (1) imply that $P(C|E)>P(C)$? If so, prove it. If not, give a counter example.
+
+Yes, it does imply that, thorugh Bayes' rule:
+$$P(C|E) = \frac{P(E|C) \cdot P(C)}{P(E)}$$
+Since we know that $P(E|C)>P(E)$, that means that $P(E|C)/P(E) > 1$, Therefore:
+$$P(C|E) = P(C) \cdot \frac{P(E|C)}{P(E)} > P(C) \cdot 1 = P(C)$$
+
+
+**PART B:** (OPTIONAL for STAT 4000) Another way to formulate a probabilistic theory of causation is to say that $$P(E|C) > P(E|C^C). \qquad \qquad (2).$$ Show that equation (1) from **PART A** implies equation (2).
+
+hahahahhaha yeah i'm not doing that, sorry not sorry.
+
+------------------------------------------------------------------------
+
+## Problem 3 (10 points) Expected values and bets
+
+Let $X =$ the outcome when a fair die is rolled once. Suppose that, before the die is rolled, you are offered a choice:
+
+*Option 1: a guarantee of* $1/4$ dollars (whatever the outcome of the roll)
+
+*Option 2:* $1/X$ dollars.
+
+Which option would you prefer? Justify your answer.
+
+Very simply, the expectation of any given roll of a dice is mean(1,2,3,4,5,6), which is 3.5, 1/3.5 > 1/4, therefore you should roll the dice. However, if you are risk-averse, and would prefer to have $0.25, you should just take the $0.25 and move on with your life.
+
+------------------------------------------------------------------------
+
+## Problem 4 (30 points) Probability
+
+Turkish, Franky, and Mickey are playing special version of Monopoly (`"https://en.wikipedia.org/wiki/Monopoly_(game)"`{=html}). Because the three of them are all scoundrels, they are all currently in Jail. In Monopoly, players roll two 6-sided dice on their turn. In their version of Monopoly, however, to get out of Jail, a player must roll *doubles* (the two dice have the same outcome) and must keep re-rolling the dice until they get doubles during their first turn in Jail. As soon as a player rolls doubles, they are let out of Jail and their turn ends. Let $D$ represent the event that a player rolls doubles.
+
+Work the following problems by hand unless otherwise stated (but don't be afraid to simulate to check your result!). It is okay to use R as a calculator, of course.
+
+**PART A:** What is the probability that a player will roll doubles on their first, second, or third roll while in Jail? Note that if a player rolls doubles on their third roll, for example, then they must *not* have rolled doubles on either of the first two rolls. Keep 4 decimal places in your answer. Show your work by "hand" and verify your answer using R.
+
+We use the complement rule. Let $D$ be the event of rolling doubles on a given roll. There are 6 matching pairs out of 36 total outcomes, so:
+$$P(D) = \frac{6}{36} = \frac{1}{6}, \qquad P(D^C) = \frac{5}{6}$$
+
+The probability of rolling doubles on the 1st, 2nd, or 3rd roll is the complement of not rolling doubles on any of the three rolls. Since each roll is independent:
+$$P(\text{no doubles in 3 rolls}) = \left(\frac{5}{6}\right)^3 = \frac{125}{216}$$
+
+Therefore:
+$$P(\text{doubles within 3 rolls}) = 1 - P(\text{no doubles in 3 rolls}) = 1 - \left(\frac{5}{6}\right)^3 = 1 - \frac{125}{216} = \frac{91}{216} \approx 0.4213$$
+
+```{r}
+m <- 1000000
+double_in_3 <- replicate(m, {
+  d1 <- sample(1:6, 3, replace=TRUE)
+  d2 <- sample(1:6, 3, replace=TRUE)
+  any(d1 ==d2)
+})
+print(mean(double_in_3))
+```
+This is extremely close to our expected, calculated value!
+
+
+**PART B:** Unbeknownst to the three people mentioned in Part A, their friend Boris will occasionally secretly swap out the dice in their Monopoly game for a pair of dice that have been weighted. Each of the biased dice is weighted such that a 6 is rolled with probability $1/2$, and all the other numbers are equally likely to be rolled. If Boris switches the dice for weighted ones, he does so before the game begins, and the entire game of Monopoly is played with the same pair of dice, whether they are fair or weighted.
+
+What is the probability of rolling doubles on the first, second or third roll while in jail, using Boris's weighted dice? Again, keep 4 decimal places in your answer.
+
+Each weighted die has $P(6) = \frac{1}{2}$ and $P(i) = \frac{1}{10}$ for $i = 1,2,3,4,5$. The probability of doubles on a single roll is:
+$$P(D) = P(6,6) + \sum_{i=1}^{5} P(i,i) = \left(\frac{1}{2}\right)^2 + 5\left(\frac{1}{10}\right)^2 = \frac{1}{4} + \frac{5}{100} = \frac{30}{100} = \frac{3}{10}$$
+
+Each roll is a Bernoulli trial with success probability $P(D) = \frac{3}{10}$ and failure probability $P(D^C) = \frac{7}{10}$. Using the complement:
+$$P(\text{doubles within 3 rolls}) = 1 - P(D^C)^3 = 1 - \left(\frac{7}{10}\right)^3 = 1 - \frac{343}{1000} = \frac{657}{1000} = 0.6570$$
+
+
+**PART C:** Suppose that before any given game of Monopoly, Boris replaces the normal six-sided dice with his loaded dice with probability $0.25$. Then the players proceed to play their entire game using either the loaded dice, or the fair dice. It is unknown to the player who is rolling, however, whether they are using the unfair or fair dice. What is the probability that a player gets doubles within three rolls? Keep 4 decimal places in your answer.
+
+This is the expectation of the random variable created from the regular dice and the loaded dice, with respective probabilities $0.75$ and $0.25$. By the Law of Total Probability:
+$$P(\text{doubles within 3}) = P(\text{fair}) \cdot P(\text{doubles within 3} \mid \text{fair}) + P(\text{unfair}) \cdot P(\text{doubles within 3} \mid \text{unfair})$$
+$$= 0.75 \cdot \frac{91}{216} + 0.25 \cdot \frac{657}{1000} \approx 0.3160 + 0.1643 = 0.4802$$
+
+
+**PART D:** While it is unknown whether they are playing with unfair dice, or with fair dice, Turkish, Mickey and Franky are armed and dangerous... with *probability theory*, that is!
+
+Suppose that starting from jail, all three of Turkish, Mickey and Franky have taken three turns each, and all three of them have managed to roll doubles within 3 rolls. If you were not given this information, you would assume that there is a probability of $0.25$ that they are playing with unfair dice. But now, given this information, what is the probability that they are playing with the unfair dice?
+
+This is now a conditional probability problem. All 3 players getting doubles within 3 rolls is evidence that conditions the prior probability, increasing the likelihood it is unfair dice. Let $A$ = all 3 players roll doubles within 3 rolls, and $U$ = unfair dice. By Bayes' Rule:
+$$P(U \mid A) = \frac{P(A \mid U) \cdot P(U)}{P(A)}$$
+
+Since the players share the same dice, given the dice type their rolls are independent, so:
+$$P(A \mid U) = \left(\frac{657}{1000}\right)^3 \approx 0.2836, \qquad P(A \mid F) = \left(\frac{91}{216}\right)^3 \approx 0.0748$$
+
+The denominator is given by the Law of Total Probability:
+$$P(A) = P(A \mid F) \cdot P(F) + P(A \mid U) \cdot P(U) = 0.75 \cdot 0.0748 + 0.25 \cdot 0.2836 = 0.0561 + 0.0709 = 0.1270$$
+
+Therefore:
+$$P(U \mid A) = \frac{0.2836 \cdot 0.25}{0.1270} = \frac{0.0709}{0.1270} \approx 0.5583$$
+
+
+**PART E:** First, work out **by hand** a formula for the probability in general that Turkish, Mickey and Franky are playing with Boris's unfair dice, given that $n$ players in a row have gotten out of jail by rolling doubles within 3 rounds. That is, you want to find a formula for $P(U \mid D_n)$ in terms of $n$.
+
+Then, define a function `prob_unfair` to calculate $P(U \mid D_n)$. This function should only take one positive integer argument, $n$.
+
+Verify that your function is performing as expected by checking your answer to **Part D** by plugging in $n=3$.
+
+This is just the generalization of Part D from 3 players to $n$. By Bayes' Rule:
+$$P(U \mid D_n) = \frac{P(D_n \mid U) \cdot P(U)}{P(D_n)}$$
+
+Given the dice type, each player's outcome is independent, so $P(D_n \mid U) = \left(\frac{657}{1000}\right)^n$ and $P(D_n \mid F) = \left(\frac{91}{216}\right)^n$. Expanding the denominator with the Law of Total Probability:
+$$P(U \mid D_n) = \frac{0.25 \cdot \left(\frac{657}{1000}\right)^n}{0.75 \cdot \left(\frac{91}{216}\right)^n + 0.25 \cdot \left(\frac{657}{1000}\right)^n}$$
+
+```{r}
+prob_unfair <- function(n) {
+  p_u <- 0.25 * (657 / 1000)^n
+  p_f <- 0.75 * (91 / 216)^n
+  p_u / (p_u + p_f)
+}
+
+# Verify with n=3 (should match Part D)
+print(round(prob_unfair(3), 4))
+```
+
+**PART F:** What is the smallest value of $n$ players in a row rolling doubles within 3 rounds that would lead to a higher-than-90% probability that the dice are unfair? Plugging larger and larger values for $n$ into your `prob_unfair` function is a very reasonable way to check this.
+
+```{r}
+prob_unfair <- function(n) {
+  p_u <- 0.25 * (657 / 1000)^n
+  p_f <- 0.75 * (91 / 216)^n
+  p_u / (p_u + p_f)
+}
+
+n <- 1
+while (prob_unfair(n) < 0.9) {
+  n <- n + 1
+}
+print(n)
+
+```
+
+After 8 players rolling doubles within 3 rounds, the probability of the dice being unfair is >90%
+
+
+**PART G:** Turkish, Mickey and Franky are becoming suspicious that the dice they are playing with are unfair. They decide to keep track of how frequently each player rolls doubles. They will roll the dice `n_trials` number of times, and make a plot of their running estimate of the probability of rolling doubles, from the moment they start rolling until they finally finish all `n_trials` rolls. So, the x-axis of their plot will be the number of rolls, and the y-axis will be the running estimate of the probability of rolling doubles with the given dice, with the number of trials given by the x-axis.
+
+Write code to run 4 independent simulations of 1,000 trials each to estimate the probability of rolling doubles using the fair dice, and another 4 independent simulations to estimate the probability of rolling doubles using Boris's loaded dice, and plot their running estimate curves on the same set of axes.
+
+In order to more easily distinguish between the loaded dice estimates and the fair dice estimates, plot the loaded dice estimates as lines using the color `tomato` and plot the fair dice estimates using the color `seagreen`. Be sure to label your axes and include a legend.
+
+Finally, comment on how many rolls appear to be necessary before Turkish, Mickey and Franky might become convinced of what type of dice they are playing with (fair or unfair). Justify your answer fully using your figure.
+
+```{r}
+n_trials <- 1000
+loaded_prob <- c(rep(1/10, 5), 1/2)
+
+# Set up empty plot
+plot(NULL, xlim = c(1, n_trials), ylim = c(0, 0.5),
+     xlab = "Number of Rolls", ylab = "Running Estimate of P(Doubles)",
+     main = "Running Estimate of Doubles Probability")
+
+# 4 fair dice simulations (seagreen)
+for (i in 1:4) {
+  d1 <- sample(1:6, n_trials, replace = TRUE)
+  d2 <- sample(1:6, n_trials, replace = TRUE)
+  running_avg <- cumsum(d1 == d2) / (1:n_trials)
+  lines(1:n_trials, running_avg, col = "seagreen")
+}
+
+# 4 loaded dice simulations (tomato)
+for (i in 1:4) {
+  d1 <- sample(1:6, n_trials, replace = TRUE, prob = loaded_prob)
+  d2 <- sample(1:6, n_trials, replace = TRUE, prob = loaded_prob)
+  running_avg <- cumsum(d1 == d2) / (1:n_trials)
+  lines(1:n_trials, running_avg, col = "tomato")
+}
+
+# Reference lines for true probabilities
+abline(h = 1/6, lty = 2, col = "seagreen")
+abline(h = 3/10, lty = 2, col = "tomato")
+
+legend("topright", legend = c("Fair Dice", "Loaded Dice"),
+       col = c("seagreen", "tomato"), lty = 1)
+```
+
+------------------------------------------------------------------------
+
+## Problem 5 (25 points) Monty Hall
+
+Suppose that you are on a game show, and you are given the choice of three doors: Behing one door is a car; behind the others, goats. You pick a door, say No. 1, and the host, Monty, who knows what's behind the doors, opens another door, say No. 3, which has a goat. He then says to you, "Do you want to pick door No. 2?" Is it to your advantage to switch your choice?
+
+**Historical notes:** This was never how "Let's Make a Deal" with Monty Hall was played. ([Here](https://www.youtube.com/watch?v=c1BSkquWkDo) is a snippet from an interview with Monty Hall about it.) It is a problem posed by Marilyn vos Savant in *Parade* magazine in 1990. The fallout was intense. Read more [here](https://priceonomics.com/the-time-everyone-corrected-the-worlds-smartest/).
+
+**PART A:** What does your intuition say? Is it in your best interest to switch?
+Yes, it is in your best interest to switch.
+
+**PART B:** Assume that you choose door number 1 and Monty opens door number 3. Let $D_i$ be the event that the car is actually behind door $i$. Let $H$ be the event that Monty opens door number 3. First, compute $P(H \mid D_i)$ for $i=1,2,3$. You'll need to think carefully about the particular situation described above.
+
+$P(H \mid D_1) = 1/2$ 
+$P(H \mid D_2) = 1$
+$P(H \mid D_3) = 0$
+
+**PART C:** Use your results from **PART B** and the Law of Total Probability to compute $P(H)$
+
+$$P(H) = \frac{1}{2} \cdot \frac{1}{3} + 1 \cdot \frac{1}{3} + 0 \cdot \frac{1}{3} = \frac{1}{6} + \frac{2}{6} + 0 = \frac{1}{2}$$
+
+**PART D:** Now, use Bayes' Rule to compute $P(D_i \mid H)$ for $i=1$ and $2$ (because these are the doors we care about).
+
+For $i = 1$:
+
+$$P(D_1 \mid H) = \frac{P(H \mid D_1) , P(D_1)}{P(H)} = \frac{\frac{1}{2} \cdot \frac{1}{3}}{\frac{1}{2}} = \frac{1}{3}$$
+
+For $i = 2$:
+
+$$P(D_2 \mid H) = \frac{P(H \mid D_2) , P(D_2)}{P(H)} = \frac{1 \cdot \frac{1}{3}}{\frac{1}{2}} = \frac{2}{3}$$
+
+**PART E:** Write some simple code to simulate the Three Doors problem and verify your results from **PARTs A-D**.
+
+```{r}
+n_trials <- 1000000
+
+car_door <- sample(1:3, n_trials, replace=TRUE)
+my_door <- 1
+
+monty_door <- sapply(car_door, function(car){
+  available <- setdiff(1:3, c(my_door, car))
+  if (length(available) == 1) available 
+  else sample(available, 1)
+})
+
+stay_wins <- mean(car_door == my_door)
+
+switch_door <- sapply(1:n_trials, function(i) setdiff(1:3, c(my_door, monty_door[i])))
+switch_wins <- mean(car_door == switch_door)
+print(stay_wins)
+print(switch_wins)
+```
+Stay wins converged to about 1/3, while switch wins converged to about 2/3, which verifies our earlier results!
+
+
+**PART F:** (OPTIONAL for STAT 4000) Now suppose there are 4 (or maybe in general, $n$) doors. There is still only one prize, but now $n-1$ goats. Modify your simulation from above to estimate the probability of winning if you switch to a random other available door, or if you stick with your original choice.
+
+```{r}
+
+```
